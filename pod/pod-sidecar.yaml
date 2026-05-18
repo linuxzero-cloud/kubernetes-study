@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-log-demo
+spec:
+  volumes: # 定义的存储资源
+    - name: log-volume
+      emptyDir: {}
+  containers:
+  - name: app
+    image: busybox
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        while true; do
+          echo "$(date) hello world" >> /var/log/app.log
+          sleep 2
+        done
+    volumeMounts: # 定义存储资源挂载到容器哪个位置
+      - name: log-volume
+        mountPath: /var/log
+  - name: log-sidecar
+    image: busybox
+    command: ["/bin/sh", "-c"]
+    args:
+      - |
+        tail -F /var/log/app.log
+    volumeMounts: # 定义存储资源挂载到容器哪个位置
+      - name: log-volume
+        mountPath: /var/log

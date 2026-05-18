@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  creationTimestamp: null
+  name: cronjob-demo
+  labels: 
+    cronjob-name: cronjob-demo
+spec:
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+      name: cronjob-demo
+      labels: 
+        cronjob-name: cronjob-demo
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+          labels: 
+            cronjob-name: cronjob-demo
+        spec:
+          containers:
+          - command:
+            - date
+            image: quay.io/prometheus/busybox
+            name: cronjob-demo
+            resources: {}
+          restartPolicy: OnFailure
+  schedule: '* * * * *'
+status: {}

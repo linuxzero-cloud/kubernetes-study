@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: service-demo
+  name: service-demo
+spec:
+  ports: # Service 对外提供的端口规则
+  - name: 80-8080 # 规则名称
+    port: 80 # Service 监听的端口
+    protocol: TCP
+    targetPort: 8080 # Service 要转发的 Pod 的端口
+  selector: # Service 通过这个 selector 来选择 Pod
+    app: service-demo # 被选择的 Pod 的标签
+  type: ClusterIP # Service 类型

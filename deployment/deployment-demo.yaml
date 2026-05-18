@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: deployment-demo
+  name: deployment-demo
+spec:
+  replicas: 1 # 副本数量，创建几个 Pod
+  selector: # 通过标签匹配的 Pod
+    matchLabels:
+      app: deployment-demo
+  strategy: {}
+  template: # Pod 的模板
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: deployment-demo
+    spec:
+      containers:
+      - image: quay.io/nginx/nginx-unprivileged
+        name: nginx-unprivileged
+        resources: {}
+status: {}

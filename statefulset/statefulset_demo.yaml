@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: statefulset-demo
+  name: statefulset-demo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: statefulset-demo
+  template:
+    metadata:
+      labels:
+        app: statefulset-demo
+    spec:
+      containers:
+      - image: quay.io/opstree/redis
+        name: redis

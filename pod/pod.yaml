@@ -1,0 +1,15 @@
+apiVersion: v1 # 资源的 Kubernetes API 版本
+kind: Pod # 资源类型
+metadata: # 资源元数据
+  labels: # 资源标签
+    app: test
+  name: test # 资源名称
+spec:
+  containers: # 要创建的容器的列表
+  - command: # 容器启动的命令，等价于 docker 里的 ENTRYPOINT
+    - /bin/sh
+    - -c
+    args: # 容器启动命令后加的参数，等价于 docker 里的 CMD
+    - sleep infinity
+    image: quay.io/prometheus/busybox # 要使用的镜像
+    name: busybox

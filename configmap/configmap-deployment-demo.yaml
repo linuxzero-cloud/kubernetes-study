@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: configmap-deployment-demo
+  name: configmap-deployment-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configmap-deployment-demo
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: configmap-deployment-demo
+    spec:
+      containers:
+      - image: quay.io/nginx/nginx-unprivileged
+        name: nginx-unprivileged
+        resources: {}
+        env:
+        - name: USERNAME
+          valueFrom:
+            configMapKeyRef: # 只添加 ConfigMap 一个 KEY 为变量
+              name: configmap-demo-from-literal # ConfigMap 的名字
+              key: username # ConfigMap 的 KEY 名字
+        - name: PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: configmap-demo-from-literal
+              key: password
+              optional: false # 默认 false；ConfigMap 或指定 key 不存在时，Pod 启动失败
+        envFrom:
+        - configMapRef: # 将 ConfigMap 中合法的 KEY 批量添加为环境变量
+            name: configmap-demo-from-env-file
+            optional: false # 默认 false；ConfigMap 不存在时，Pod 启动失败
+          prefix: domain1_ # 添加变量的前缀
+        volumeMounts:
+        - name: nginx-index # 使用的卷名称
+          mountPath: /usr/share/nginx/html/index.html # 挂载到容器中的目标文件路径；配合 subPath 挂载单个文件
+          readOnly: true # 显式声明只读；ConfigMap/Secret volume 本身就是只读
+          subPath: default.html # 对应 volume 中的文件路径；当前未使用 items，因此这里等于 ConfigMap 的 key
+        - name: env-file 
+          mountPath: /usr/share/nginx/html/env # 将整个 ConfigMap volume 挂载到目录
+        - name: env-file 
+          mountPath: /usr/share/nginx/html/APP_ENV # 同一个 volume 再单独挂其中一个文件
+          subPath: APP_ENV_FILE # 和下边 items 中的 path 对应
+      volumes:
+      - name: nginx-index # 添加的卷名称
+        configMap: # 卷来源于 ConfigMap
+          name: configmap-demo-from-file # ConfigMap 名称
+          optional: false # 默认 false；ConfigMap 不存在时，Pod 启动失败
+      - name: env-file
+        configMap:
+          name: configmap-demo-from-env-file
+          defaultMode: 0600 # ConfigMap volume 中文件的默认权限，可被 items[].mode 覆盖
+          items: # 只将指定的 ConfigMap key 生成为 volume 中的文件
+          - key: APP_ENV # 取名为 APP_ENV 的 KEY
+            path: APP_ENV_FILE # ConfigMap key 在 volume 中生成的文件名；subPath 要引用这个最终路径
+            mode: 0644
+          - key: DB_HOST
+            path: DB_HOST_FILE
+            mode: 0644

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: service-demo-externalname
+  name: service-demo-externalname
+spec:
+  externalName: www.bing.com
+  selector:
+    app: service-demo-externalname
+  type: ExternalName
+status:
+  loadBalancer: {}
