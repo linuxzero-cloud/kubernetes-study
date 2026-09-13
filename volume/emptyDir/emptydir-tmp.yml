@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: emptydir-tmp
+  name: emptydir-tmp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: emptydir-tmp
+  template:
+    metadata:
+      labels:
+        app: emptydir-tmp
+    spec:
+      initContainers: 
+      # 创建一个初始化容器，初始化 /usr/share/nginx/html/index.html 文件内容
+      - image: quay.io/nginx/nginx-unprivileged
+        name: nginx-unprivileged-init
+        command: 
+        - sh
+        - -c
+        - "echo 'Hello World!' > /usr/share/nginx/html/index.html"
+        # 挂载 html-dir 临时目录到 /usr/share/nginx/html/
+        volumeMounts: 
+        - name: html-dir 
+          mountPath: /usr/share/nginx/html/
+      containers:
+      - image: quay.io/nginx/nginx-unprivileged
+        name: nginx-unprivileged
+        # 挂载 html-dir 临时目录到 /usr/share/nginx/html/
+        volumeMounts: 
+        - name: html-dir
+          mountPath: /usr/share/nginx/html/
+      volumes: 
+      # 添加一个临时目录，命名为 html-dir
+      - name: html-dir
+        emptyDir: {}

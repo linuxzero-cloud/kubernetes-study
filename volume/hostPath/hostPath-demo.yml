@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hostpath-demo
+  name: hostpath-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hostpath-demo
+  template:
+    metadata:
+      labels:
+        app: hostpath-demo
+    spec:
+      # 为 Pod 选择要运行的 K8S 节点，这个节点有额外的 vdb 磁盘
+      nodeSelector: 
+        kubernetes.io/hostname: base-k8s-worker-1.example.com
+      containers:
+      - image: quay.io/nginx/nginx-unprivileged
+        name: nginx-unprivileged
+        volumeMounts:
+        # 将宿主机 /tmp/hostPath-directory 挂载到 Pod 的 /tmp/hostPath-directory-pod
+        - name: hostpath-directory
+          mountPath: /tmp/hostPath-directory-pod
+        # 将宿主机 /tmp/hostPath-fileorcreate 挂载到 Pod 的 /tmp/hostPath-fileorcreate-pod
+        - name: hostpath-fileorcreate
+          mountPath: /tmp/hostPath-fileorcreate-pod
+        # 将宿主机 /dev/vdb 挂载到 Pod 的 /dev/vdb-pod
+        - name: hostpath-block
+          mountPath: /dev/vdb-pod
+      volumes:
+      # 挂载宿主机上的已有目录
+      # 要求宿主机 /tmp/hostPath-directory 必须已经存在，并且必须是目录
+      - name: hostpath-directory
+        hostPath:
+          type: Directory
+          path: /tmp/hostPath-directory
+      # 挂载宿主机上的文件
+      # 如果 /tmp/hostPath-fileorcreate 不存在，kubelet 会自动创建一个空文件
+      # 默认权限为 0644
+      - name: hostpath-fileorcreate
+        hostPath:
+          type: FileOrCreate
+          path: /tmp/hostPath-fileorcreate
+      # 将宿主机上的裸块设备 /dev/vdb 提供给 Pod 使用
+      # 要求 /dev/vdb 必须已经存在，并且必须是块设备
+      # 容器侧需要使用 volumeDevices，而不是 volumeMounts
+      - name: hostpath-block
+        hostPath:
+          type: BlockDevice
+          path: /dev/vdb

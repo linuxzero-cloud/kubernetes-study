@@ -44,7 +44,8 @@ spec:
           readOnly: true # 显式声明只读；ConfigMap/Secret volume 本身就是只读
           subPath: default.html # 对应 volume 中的文件路径；当前未使用 items，因此这里等于 ConfigMap 的 key
         - name: env-file 
-          mountPath: /usr/share/nginx/html/env # 将整个 ConfigMap volume 挂载到目录
+          mountPath: /usr/share/nginx/html/testdir/env # 将整个 ConfigMap volume 挂载到目录
+          subPath: DB_HOST_FILE
         - name: env-file 
           mountPath: /usr/share/nginx/html/APP_ENV # 同一个 volume 再单独挂其中一个文件
           subPath: APP_ENV_FILE # 和下边 items 中的 path 对应
